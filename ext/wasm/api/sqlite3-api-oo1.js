@@ -68,14 +68,18 @@ globalThis.sqlite3ApiBootstrap.initializers.push(function(sqlite3){
      sqlite3_trace_v2() callback which gets installed by the DB ctor
      if its open-flags contain "t".
   */
-  const __dbTraceToConsole =
-        wasm.installFunction('i(ippp)', function(t,c,p,x){
+  const __dbTraceToConsole = function f(){
+      if (!f._){
+        f._ = wasm.installFunction('i(ippp)', function(t,c,p,x){
           if(capi.SQLITE_TRACE_STMT===t){
-            // x == SQL, p == sqlite3_stmt*
-            console.log("SQL TRACE #"+(++this.counter)+' via sqlite3@'+c+':',
-                        wasm.cstrToJs(x));
+          // x == SQL, p == sqlite3_stmt*
+          console.log("SQL TRACE #"+(++this.counter)+' via sqlite3@'+c+':',
+                      wasm.cstrToJs(x));
           }
-        }.bind({counter: 0}));
+        }.bind({ counter: 0 }));
+      }
+      return f._;
+    };
 
   /**
      A map of sqlite3_vfs pointers to SQL code or a callback function
@@ -161,7 +165,7 @@ globalThis.sqlite3ApiBootstrap.initializers.push(function(sqlite3){
       capi.sqlite3_extended_result_codes(pDb, 1);
       if(flagsStr.indexOf('t')>=0){
         capi.sqlite3_trace_v2(pDb, capi.SQLITE_TRACE_STMT,
-                              __dbTraceToConsole, pDb);
+            opt.dbTraceToConsole ? opt.dbTraceToConsole : __dbTraceToConsole(), pDb);
       }
     }catch( e ){
       if( pDb ) capi.sqlite3_close_v2(pDb);
