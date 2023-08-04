@@ -144,9 +144,6 @@
 #ifndef SQLITE_OMIT_WAL
 # define SQLITE_OMIT_WAL 1
 #endif
-#ifndef SQLITE_OS_KV_OPTIONAL
-# define SQLITE_OS_KV_OPTIONAL 1
-#endif
 
 /**********************************************************************/
 /* SQLITE_T... */
@@ -1040,6 +1037,7 @@ const char * sqlite3_wasm_enum_json(void){
     } _StructBinder;
 #undef CurrentStruct
 
+#ifdef SQLITE_OS_KV_OPTIONAL
 #define CurrentStruct sqlite3_kvvfs_methods
     StructBinder {
       M(xRead,    "i(sspi)");
@@ -1048,7 +1046,7 @@ const char * sqlite3_wasm_enum_json(void){
       M(nKeySize, "i");
     } _StructBinder;
 #undef CurrentStruct
-
+#endif
 
 #define CurrentStruct sqlite3_vtab
     StructBinder {
@@ -1464,6 +1462,7 @@ int sqlite3_wasm_vfs_create_file( sqlite3_vfs *pVfs,
   return rc;
 }
 
+#ifdef SQLITE_OS_KV_OPTIONAL
 /*
 ** This function is NOT part of the sqlite3 public API. It is strictly
 ** for use by the sqlite project's own JS/WASM bindings.
@@ -1497,6 +1496,8 @@ SQLITE_WASM_EXPORT
 sqlite3_kvvfs_methods * sqlite3_wasm_kvvfs_methods(void){
   return &sqlite3KvvfsMethods;
 }
+
+#endif
 
 /*
 ** This function is NOT part of the sqlite3 public API. It is strictly
