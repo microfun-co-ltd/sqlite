@@ -181,7 +181,7 @@ globalThis.sqlite3ApiBootstrap.initializers.push(function(sqlite3){
       const pVfs = capi.sqlite3_js_db_vfs(pDb);
       if(!pVfs) toss3("Internal error: cannot get VFS for new db handle.");
       const postInitSql = __vfsPostOpenSql[pVfs];
-      if(postInitSql instanceof Function){
+      if('function'===typeof postInitSql){
         postInitSql(this, sqlite3);
       }else if(postInitSql){
         checkSqlite3Rc(
@@ -544,7 +544,7 @@ globalThis.sqlite3ApiBootstrap.initializers.push(function(sqlite3){
     */
     close: function(){
       if(this.pointer){
-        if(this.onclose && (this.onclose.before instanceof Function)){
+        if(this.onclose && ('function'===typeof this.onclose.before)){
           try{this.onclose.before(this)}
           catch(e){/*ignore*/}
         }
@@ -555,7 +555,7 @@ globalThis.sqlite3ApiBootstrap.initializers.push(function(sqlite3){
         __ptrMap.delete(this);
         __stmtMap.delete(this);
         capi.sqlite3_close_v2(pDb);
-        if(this.onclose && (this.onclose.after instanceof Function)){
+        if(this.onclose && ('function'===typeof this.onclose.after)){
           try{this.onclose.after(this)}
           catch(e){/*ignore*/}
         }
@@ -986,7 +986,7 @@ globalThis.sqlite3ApiBootstrap.initializers.push(function(sqlite3){
        `-sALLOW_TABLE_GROWTH` flag.
     */
     createFunction: function f(name, xFunc, opt){
-      const isFunc = (f)=>(f instanceof Function);
+      const isFunc = (f)=>('function'===typeof f);
       switch(arguments.length){
           case 1: /* (optionsObject) */
             opt = name;

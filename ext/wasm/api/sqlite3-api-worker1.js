@@ -317,7 +317,7 @@ globalThis.sqlite3ApiBootstrap.initializers.push(function(sqlite3){
 sqlite3.initWorker1API = function(){
   'use strict';
   const toss = (...args)=>{throw new Error(args.join(' '))};
-  if(!(globalThis.WorkerGlobalScope instanceof Function)){
+  if(!('function'===typeof globalThis.WorkerGlobalScope)){
     toss("initWorker1API() must be run from a Worker thread.");
   }
   const self = this.self;
@@ -524,7 +524,7 @@ sqlite3.initWorker1API = function(){
       }
       try {
         db.exec(rc);
-        if(rc.callback instanceof Function){
+        if('function'===typeof rc.callback){
           rc.callback = theCallback;
           /* Post a sentinel message to tell the client that the end
              of the result set has been reached (possibly with zero
@@ -595,7 +595,7 @@ sqlite3.initWorker1API = function(){
     const arrivalTime = performance.now();
     try {
       if(wMsgHandler.hasOwnProperty(evType) &&
-         wMsgHandler[evType] instanceof Function){
+         'function'===typeof wMsgHandler[evType]){
         result = await wMsgHandler[evType](ev);
       }else{
         toss("Unknown db worker message type:",ev.type);

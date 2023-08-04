@@ -914,7 +914,7 @@ globalThis.sqlite3ApiBootstrap = function sqlite3ApiBootstrap(
           keyRealloc = config.reallocExportName;
     for(const key of [keyAlloc, keyDealloc, keyRealloc]){
       const f = wasm.exports[key];
-      if(!(f instanceof Function)) toss3("Missing required exports[",key,"] function.");
+      if(!('function'===typeof f)) toss3("Missing required exports[",key,"] function.");
     }
 
     wasm.alloc = function f(n){

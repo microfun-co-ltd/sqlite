@@ -118,7 +118,7 @@ globalThis.sqlite3ApiBootstrap.initializers.push(function(sqlite3){
   ){
     if(!(tgt instanceof StructBinder.StructType)){
       toss("Usage error: target object is-not-a StructType.");
-    }else if(!(func instanceof Function) && !wasm.isPtr(func)){
+    }else if(!('function'===typeof func) && !wasm.isPtr(func)){
       toss("Usage errror: expecting a Function or WASM pointer to one.");
     }
     if(1===arguments.length){
@@ -513,7 +513,7 @@ globalThis.sqlite3ApiBootstrap.initializers.push(function(sqlite3){
      If that function throws, that exception is ignored.
   */
   vtab.xError = function f(methodName, err, defaultRc){
-    if(f.errorReporter instanceof Function){
+    if('function'===typeof f.errorReporter){
       try{f.errorReporter("sqlite3_module::"+methodName+"(): "+err.message);}
       catch(e){/*ignored*/}
     }
@@ -676,7 +676,7 @@ globalThis.sqlite3ApiBootstrap.initializers.push(function(sqlite3){
         const remethods = Object.create(null);
         for(const k of mnames){
           const m = methods[k];
-          if(!(m instanceof Function)) continue;
+          if(!('function'===typeof m)) continue;
           else if('xConnect'===k && methods.xCreate===m){
             remethods[k] = methods.xCreate;
           }else if('xCreate'===k && methods.xConnect===m){

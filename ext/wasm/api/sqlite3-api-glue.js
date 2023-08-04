@@ -327,7 +327,7 @@ globalThis.sqlite3ApiBootstrap.initializers.push(function(sqlite3){
     wasm.bindingSignatures.push(["sqlite3_normalized_sql", "string", "sqlite3_stmt*"]);
   }
 
-  if(wasm.exports.sqlite3_activate_see instanceof Function){
+  if('function'===typeof wasm.exports.sqlite3_activate_see){
     wasm.bindingSignatures.push(
       ["sqlite3_key", "int", "sqlite3*", "string", "int"],
       ["sqlite3_key_v2","int","sqlite3*","string","*","int"],
@@ -1112,7 +1112,7 @@ globalThis.sqlite3ApiBootstrap.initializers.push(function(sqlite3){
       }
       try{
         const rc = __sqlite3CreateCollationV2(pDb, zName, eTextRep, pArg, xCompare, xDestroy);
-        if(0===rc && xCompare instanceof Function){
+        if(0===rc && 'function'===typeof xCompare){
           __dbCleanupMap.addCollation(pDb, zName);
         }
         return rc;
@@ -1234,10 +1234,10 @@ globalThis.sqlite3ApiBootstrap.initializers.push(function(sqlite3){
       try{
         const rc = __sqlite3CreateFunction(pDb, funcName, nArg, eTextRep,
                                            pApp, xFunc, xStep, xFinal, xDestroy);
-        if(0===rc && (xFunc instanceof Function
-                      || xStep instanceof Function
-                      || xFinal instanceof Function
-                      || xDestroy instanceof Function)){
+        if(0===rc && ('function'===typeof xFunc
+                      || 'function'===typeof xStep
+                      || 'function'===typeof xFinal
+                      || 'function'===typeof xDestroy)){
           __dbCleanupMap.addFunction(pDb, funcName, nArg);
         }
         return rc;
@@ -1278,11 +1278,11 @@ globalThis.sqlite3ApiBootstrap.initializers.push(function(sqlite3){
         const rc = __sqlite3CreateWindowFunction(pDb, funcName, nArg, eTextRep,
                                                  pApp, xStep, xFinal, xValue,
                                                  xInverse, xDestroy);
-        if(0===rc && (xStep instanceof Function
-                      || xFinal instanceof Function
-                      || xValue instanceof Function
-                      || xInverse instanceof Function
-                      || xDestroy instanceof Function)){
+        if(0===rc && ('function'===typeof xStep
+                      || 'function'===typeof xFinal
+                      || 'function'===typeof xValue
+                      || 'function'===typeof xInverse
+                      || 'function'===typeof xDestroy)){
           __dbCleanupMap.addWindowFunc(pDb, funcName, nArg);
         }
         return rc;
@@ -1527,7 +1527,7 @@ globalThis.sqlite3ApiBootstrap.initializers.push(function(sqlite3){
     const __autoExtFptr = new Set;
 
     capi.sqlite3_auto_extension = function(fPtr){
-      if( fPtr instanceof Function ){
+      if( 'function'===typeof fPtr ){
         fPtr = wasm.installFunction('i(ppp)', fPtr);
       }else if( 1!==arguments.length || !wasm.isPtr(fPtr) ){
         return capi.SQLITE_MISUSE;
