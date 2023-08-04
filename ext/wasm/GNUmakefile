@@ -48,6 +48,7 @@
 #
 SHELL := $(shell which bash 2>/dev/null)
 MAKEFILE := $(lastword $(MAKEFILE_LIST))
+TARGET_PLATFORM := browser
 CLEAN_FILES :=
 DISTCLEAN_FILES := ./--dummy--
 default: all
@@ -187,11 +188,14 @@ SQLITE_OPT = \
   -DSQLITE_OMIT_WAL \
   -DSQLITE_THREADSAFE=0 \
   -DSQLITE_TEMP_STORE=3 \
-  -DSQLITE_OS_KV_OPTIONAL=1 \
   '-DSQLITE_DEFAULT_UNIX_VFS="unix-none"' \
   -DSQLITE_USE_URI=1 \
   -DSQLITE_WASM_ENABLE_C_TESTS \
   -DSQLITE_C=$(sqlite3.c)
+
+ifneq (wechat,$(TARGET_PLATFORM))
+SQLITE_OPT += -DSQLITE_OS_KV_OPTIONAL=1
+endif
 
 .NOTPARALLEL: $(sqlite3.h)
 $(sqlite3.h):
@@ -310,7 +314,13 @@ cflags.common :=  -I. -I$(dir $(sqlite3.c))
 # emcc.WASM_BIGINT = 1 for BigInt (C int64) support, else 0.  The API
 # disables certain features if BigInt is not enabled and such builds
 # _are not tested_ on any regular basis.
+ifneq (wechat,$(TARGET_PLATFORM))
 emcc.WASM_BIGINT ?= 1
+else
+emcc.WASM_BIGINT ?= 0
+endif
+
+
 
 # emcc_opt = optimization-related flags. These are primarily used by
 # the various oX targets. build times for -O levels higher than 0 are
@@ -378,7 +388,11 @@ sqlite3-api.jses += $(sqlite3-api-build-version.js)
 sqlite3-api.jses += $(dir.api)/sqlite3-api-oo1.js
 sqlite3-api.jses += $(dir.api)/sqlite3-api-worker1.js
 sqlite3-api.jses += $(dir.api)/sqlite3-v-helper.js
+ifneq (wechat,$(TARGET_PLATFORM))
 sqlite3-api.jses += $(dir.api)/sqlite3-vfs-opfs.c-pp.js
+else
+sqlite3-api.jses += $(dir.api)/sqlite3-vfs-wxfs.c-pp.js
+endif
 sqlite3-api.jses += $(dir.api)/sqlite3-api-cleanup.js
 
 # "External" API files which are part of our distribution
@@ -688,6 +702,11 @@ extern-post-js.js.in := $(dir.api)/extern-post-js.c-pp.js
 # various builds.
 pre-post-common.flags := \
   --extern-pre-js=$(sqlite3-license-version.js)
+# WeChat mini App environment is missing several common APIs,
+# this file is intended to polyfill them.
+ifeq (wechat,$(TARGET_PLATFORM))
+pre-post-common.flags += --extern-pre-js=$(dir.api)/wechat-polyfill.js
+endif
 # pre-post-jses.deps.* = a list of dependencies for the
 # --[extern-][pre/post]-js files.
 pre-post-jses.deps.common := $(extern-pre-js.js) $(sqlite3-license-version.js)
