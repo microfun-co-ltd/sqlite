@@ -26,52 +26,53 @@ globalThis.sqlite3ApiBootstrap.initializers.push(function(sqlite3){
   sqlite3.vtab = vtab;
 
   const sii = capi.sqlite3_index_info;
-  /**
-     If n is >=0 and less than this.$nConstraint, this function
-     returns either a WASM pointer to the 0-based nth entry of
-     this.$aConstraint (if passed a truthy 2nd argument) or an
-     sqlite3_index_info.sqlite3_index_constraint object wrapping that
-     address (if passed a falsy value or no 2nd argument). Returns a
-     falsy value if n is out of range.
-  */
-  sii.prototype.nthConstraint = function(n, asPtr=false){
-    if(n<0 || n>=this.$nConstraint) return false;
-    const ptr = this.$aConstraint + (
-      sii.sqlite3_index_constraint.structInfo.sizeof * n
-    );
-    return asPtr ? ptr : new sii.sqlite3_index_constraint(ptr);
-  };
+  if (sii){/* sqlite3_index_info is unavailable when BigInt64 is not supported */
+    /**
+       If n is >=0 and less than this.$nConstraint, this function
+       returns either a WASM pointer to the 0-based nth entry of
+       this.$aConstraint (if passed a truthy 2nd argument) or an
+       sqlite3_index_info.sqlite3_index_constraint object wrapping that
+       address (if passed a falsy value or no 2nd argument). Returns a
+       falsy value if n is out of range.
+    */
+    sii.prototype.nthConstraint = function(n, asPtr=false){
+      if(n<0 || n>=this.$nConstraint) return false;
+      const ptr = this.$aConstraint + (
+        sii.sqlite3_index_constraint.structInfo.sizeof * n
+      );
+      return asPtr ? ptr : new sii.sqlite3_index_constraint(ptr);
+    };
 
-  /**
-     Works identically to nthConstraint() but returns state from
-     this.$aConstraintUsage, so returns an
-     sqlite3_index_info.sqlite3_index_constraint_usage instance
-     if passed no 2nd argument or a falsy 2nd argument.
-  */
-  sii.prototype.nthConstraintUsage = function(n, asPtr=false){
-    if(n<0 || n>=this.$nConstraint) return false;
-    const ptr = this.$aConstraintUsage + (
-      sii.sqlite3_index_constraint_usage.structInfo.sizeof * n
-    );
-    return asPtr ? ptr : new sii.sqlite3_index_constraint_usage(ptr);
-  };
+    /**
+       Works identically to nthConstraint() but returns state from
+       this.$aConstraintUsage, so returns an
+       sqlite3_index_info.sqlite3_index_constraint_usage instance
+       if passed no 2nd argument or a falsy 2nd argument.
+    */
+    sii.prototype.nthConstraintUsage = function(n, asPtr=false){
+      if(n<0 || n>=this.$nConstraint) return false;
+      const ptr = this.$aConstraintUsage + (
+        sii.sqlite3_index_constraint_usage.structInfo.sizeof * n
+      );
+      return asPtr ? ptr : new sii.sqlite3_index_constraint_usage(ptr);
+    };
 
-  /**
-     If n is >=0 and less than this.$nOrderBy, this function
-     returns either a WASM pointer to the 0-based nth entry of
-     this.$aOrderBy (if passed a truthy 2nd argument) or an
-     sqlite3_index_info.sqlite3_index_orderby object wrapping that
-     address (if passed a falsy value or no 2nd argument). Returns a
-     falsy value if n is out of range.
-  */
-  sii.prototype.nthOrderBy = function(n, asPtr=false){
-    if(n<0 || n>=this.$nOrderBy) return false;
-    const ptr = this.$aOrderBy + (
-      sii.sqlite3_index_orderby.structInfo.sizeof * n
-    );
-    return asPtr ? ptr : new sii.sqlite3_index_orderby(ptr);
-  };
-
+    /**
+       If n is >=0 and less than this.$nOrderBy, this function
+       returns either a WASM pointer to the 0-based nth entry of
+       this.$aOrderBy (if passed a truthy 2nd argument) or an
+       sqlite3_index_info.sqlite3_index_orderby object wrapping that
+       address (if passed a falsy value or no 2nd argument). Returns a
+       falsy value if n is out of range.
+    */
+    sii.prototype.nthOrderBy = function(n, asPtr=false){
+      if(n<0 || n>=this.$nOrderBy) return false;
+      const ptr = this.$aOrderBy + (
+        sii.sqlite3_index_orderby.structInfo.sizeof * n
+      );
+      return asPtr ? ptr : new sii.sqlite3_index_orderby(ptr);
+    };
+  }
   /**
      Installs a StructBinder-bound function pointer member of the
      given name and function in the given StructType target object.
